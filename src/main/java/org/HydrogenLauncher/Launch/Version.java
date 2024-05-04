@@ -1,19 +1,25 @@
 package org.HydrogenLauncher.Launch;
 
 import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import org.tinylog.Logger;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Version {
     private String name;
     private File rootDir;
     private File jar;
     private File json;
-    private LaunchOption option;
+    private String clientVersion;
+    private String mainClass;
+    private String minecraftArguments;
+    private ArrayList<String> libraries = new ArrayList<>();
     public Version(File file) {
         rootDir = file;
         name = rootDir.getName();
@@ -44,7 +50,25 @@ public class Version {
             // 使用 Fastjson 将 JSON 字符串转换为 JSON 对象
             JSONObject jsonObject = JSON.parseObject(jsonString);
 
-            Logger.info(jsonObject.get("id"));
+            // 获取游戏版本
+            clientVersion = jsonObject.get("id").toString();
+            Logger.info("clientVersion:" + clientVersion);
+
+            // 获取主类
+            mainClass = jsonObject.get("mainClass").toString();
+            Logger.info("mainClass:" + mainClass);
+
+            // 获取游戏参数
+            minecraftArguments = jsonObject.get("minecraftArguments").toString();
+            Logger.info("minecraftArguments:" + minecraftArguments);
+
+            // 获取Libraries
+            JSONArray arr = jsonObject.getJSONArray("libraries");
+            for (Object obj : arr) {
+                libraries.add(JSON.parseObject(obj.toString()).get("name").toString());
+            }
+
+
         } catch (IOException e) {
             Logger.error("Failed to read JSON file!!!");
         }
